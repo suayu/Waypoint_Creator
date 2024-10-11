@@ -434,6 +434,7 @@ class KeyboardControl(object):
                             np.save(path, combined_data)
                         # 清空数据缓存
                         world.tf_data = np.array([])
+                        print("Transform data saved.")
                 elif event.key == K_F1:
                     world.hud.toggle_info()
                 elif event.key == K_v and pygame.key.get_mods() & KMOD_SHIFT:

@@ -39,4 +39,4 @@ x, y, z, pitch ,yaw, roll = get_tf.interpolate(transform, time_stamp, 0.1)
 `elapsed_seconds`：仿真经过秒数<br>
 `delta_seconds`：从上一帧开始经过秒数<br>
 `platform_timestamp`：以秒为单位给出测量帧的寄存器<br>
-上一帧的elapsed_seconds+这一帧的delta_seconds=这一帧的elapsed_seconds
+上一帧的`elapsed_seconds`+这一帧的`delta_seconds`=这一帧的`elapsed_seconds`
