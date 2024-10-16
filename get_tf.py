@@ -1,6 +1,8 @@
 import argparse
 import numpy as np
 
+THRESHOLD = 10
+
 def read_data(read_path):
     data = np.load(read_path, allow_pickle=True)
     data = data.reshape(-1, 10)
@@ -30,10 +32,14 @@ def interpolate(transform, time_stamp, dT):
 
     x_interpolated = np.interp(new_time_stamp, time_stamp, x)
     y_interpolated = np.interp(new_time_stamp, time_stamp, y)
-    z_interpolated = np.interp(new_time_stamp, time_stamp, z)
+    z_interpolated = np.interp(new_time_stamp, time_stamp, z) - 0.05
     pitch_interpolated = np.interp(new_time_stamp, time_stamp, pitch)
     yaw_interpolated = np.interp(new_time_stamp, time_stamp, yaw)
     roll_interpolated = np.interp(new_time_stamp, time_stamp, roll)
+
+    for i in range(1,new_len-1):
+        if abs(yaw_interpolated[i] - yaw_interpolated[i-1]) > THRESHOLD and abs(yaw_interpolated[i] - yaw_interpolated[i+1]) > THRESHOLD :
+            yaw_interpolated[i] = yaw_interpolated[i-1]
 
     # for i in range(0,new_len):
     #     print("timestamp:",format(time_stamp[i], '.4f'),"  new timestamp:",format(new_time_stamp[i], '.2f'),"  x,y,z:",format(x[i], '.4f'),format(y[i], '.4f'),
@@ -50,7 +56,7 @@ def interpolate(transform, time_stamp, dT):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Carla Ego Car Transform Reader')
     parser.add_argument('-pth', '--read_path', default = '')
-    parser.add_argument('-dt', '--dt', type = float, default = 0.1)
+    parser.add_argument('-dt', '--dt', type = float, default = 0.02)
     args = parser.parse_args()
 
     transform, time_stamp = read_data(args.read_path)
