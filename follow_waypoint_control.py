@@ -54,7 +54,7 @@ def main(data_path = "tf.npy", forward = True, create_ego_car = True, reference_
         # y = np.interp(x, temp_x, temp_y)
         # new_len = len(x)
 
-        print("ref:",reference_points)
+        # print("ref:",reference_points)
 
         # 考虑到参考路径点可能过于稀疏，进行上采样，以方便PurePursuit算法追踪
         path_length = 0
@@ -63,7 +63,7 @@ def main(data_path = "tf.npy", forward = True, create_ego_car = True, reference_
         for i in range(0,len(temp_x)-1):
             dis = math.sqrt((temp_x[i]-temp_x[i+1])*(temp_x[i]-temp_x[i+1])+(temp_y[i]-temp_y[i+1])*(temp_y[i]-temp_y[i+1]))
             path_length += dis
-            print("points:",[temp_x[i],temp_y[i]],[temp_x[i+1],temp_y[i+1]]," dis:",dis)
+            # print("points:",[temp_x[i],temp_y[i]],[temp_x[i+1],temp_y[i+1]]," dis:",dis)
             if dis > THRESHOLD:
                 target_dis = TARGET_DIS
                 target_points_num = int(dis / target_dis) + 1
@@ -76,8 +76,8 @@ def main(data_path = "tf.npy", forward = True, create_ego_car = True, reference_
 
                 x_.extend(xn.tolist())
                 y_.extend(yn.tolist())
-                print("dis:",dis,"  ori:",[temp_x[i],temp_y[i]],[temp_x[i+1],temp_y[i+1]])
-                print("after:",xn.tolist(),yn.tolist())
+                # print("dis:",dis,"  ori:",[temp_x[i],temp_y[i]],[temp_x[i+1],temp_y[i+1]])
+                # print("after:",xn.tolist(),yn.tolist())
                 
             else:
                 x_.append(temp_x[i])
@@ -89,7 +89,7 @@ def main(data_path = "tf.npy", forward = True, create_ego_car = True, reference_
         new_len = len(x_)
         x = np.array(x_)
         y = np.array(y_)
-        print("new:",x,"\n",y)
+        # print("new:",x,"\n",y)
         yaw = calculate_yaws(x,y)
 
     elif len(reference_points) == 0 and os.path.exists(data_path):

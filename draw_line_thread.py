@@ -4,7 +4,7 @@ import carla
 import numpy as np
 
 class DrawInCarlaThread:
-    def __init__(self, world: carla.World, interval, pic_size, camera_scaling_param, camera_init_height, default_point_height):
+    def __init__(self, world: carla.World, interval, pic_size, camera_scaling_param, camera_init_height, default_point_height, use_z):
         self.world = world
         self.lock = threading.Lock()
         self.thread_hold = True
@@ -15,6 +15,7 @@ class DrawInCarlaThread:
         self.camera_scaling_param = camera_scaling_param
         self.camera_init_height = camera_init_height
         self.default_point_height = default_point_height
+        self.use_z = use_z
 
     def draw_in_carla_thread(self):
         """实现绘图进程"""
@@ -92,17 +93,29 @@ class DrawInCarlaThread:
 
         # 绘制参考点
         for point in reference_points:
-            debug.draw_point(carla.Location(x=point[0], y=point[1], z=point[2]), size=0.08, color=carla.Color(r=255, g=0, b=0), life_time=self.interval*2)
+            if self.use_z:
+                debug.draw_point(carla.Location(x=point[0], y=point[1], z=point[2]), size=0.08, color=carla.Color(r=255, g=0, b=0), life_time=self.interval*2)
+            else:
+                debug.draw_point(carla.Location(x=point[0], y=point[1], z=0.5), size=0.08, color=carla.Color(r=255, g=0, b=0), life_time=self.interval*2)
         
         # 绘制连线
         for i in range(len(reference_points) - 1):
-            debug.draw_line(
-                carla.Location(x=reference_points[i][0], y=reference_points[i][1], z=reference_points[i][2]),
-                carla.Location(x=reference_points[i + 1][0], y=reference_points[i + 1][1], z=reference_points[i + 1][2]),
-                thickness=0.1,
-                color=carla.Color(r=255, g=0, b=0),
-                life_time = self.interval*2
-            )
+            if self.use_z:
+                debug.draw_line(
+                    carla.Location(x=reference_points[i][0], y=reference_points[i][1], z=reference_points[i][2]),
+                    carla.Location(x=reference_points[i + 1][0], y=reference_points[i + 1][1], z=reference_points[i + 1][2]),
+                    thickness=0.1,
+                    color=carla.Color(r=255, g=0, b=0),
+                    life_time = self.interval*2
+                )
+            else:
+                debug.draw_line(
+                    carla.Location(x=reference_points[i][0], y=reference_points[i][1], z=0.5),
+                    carla.Location(x=reference_points[i + 1][0], y=reference_points[i + 1][1], z=0.5),
+                    thickness=0.1,
+                    color=carla.Color(r=255, g=0, b=0),
+                    life_time = self.interval*2
+                )
 
     def update_line_points(self, line_points):
         with self.lock:

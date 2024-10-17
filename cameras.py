@@ -148,14 +148,42 @@ def interpolate_path(path, sample_rate, times):
     new_path = np.vstack([way_point_x,way_point_y]).T
     return new_path
 
+def altitude_check(points, threshold_dz = 1):
+    if len(points) < 3:
+        return points
+
+    # 推导式写法
+    # smoothed_points = [
+    #     carla.Location(x = points[i].x, y = points[i].y, z = (points[i - 1].z + points[i + 1].z) / 2)
+    #     if i > 0 and i < len(points) - 1 and (
+    #         abs(points[i].z - points[i - 1].z) > threshold_dz and
+    #         abs(points[i].z - points[i + 1].z) > threshold_dz
+    #     )
+    #     else points[i]
+    #     for i in range(len(points))
+    # ]
+    # return smoothed_points
+
+    for i in range(1, len(points) - 1):
+
+        interpolation_with_prev = abs(points[i].z - points[i-1].z)
+        interpolation_with_next = abs(points[i].z - points[i+1].z)
+        # print("interpolation_with_prev:",interpolation_with_prev," interpolation_with_next:",interpolation_with_next)
+        if interpolation_with_prev > threshold_dz and interpolation_with_next > threshold_dz:
+            points[i].z = (points[i-1].z + points[i+1].z) / 2
+
+    return points
+
+
 if __name__ == "__main__":
     logging.basicConfig(level=logging.NOTSET)
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--actor_id', type=int, default=-1, help='ID of actor')
+    parser.add_argument('--use_z', type=bool, default=False, help='Whether to enable Z-coordinate')
     args = parser.parse_args()
     actor_id = args.actor_id
-    print("actor id:",actor_id)
+    use_z = args.use_z
 
     # 连接到客户端并检索世界对象
     client = carla.Client('localhost', 2000)
@@ -209,7 +237,7 @@ if __name__ == "__main__":
     line_points = []
     drawing = False
 
-    draw_thread = DrawInCarlaThread(world, REFRESH_INTERVAL, PIC_SIZE, CAMERA_SCALING_PARAM, CAMERA_INIT_HEIGHT, DEFAULT_POINT_HEIGHT)
+    draw_thread = DrawInCarlaThread(world, REFRESH_INTERVAL, PIC_SIZE, CAMERA_SCALING_PARAM, CAMERA_INIT_HEIGHT, DEFAULT_POINT_HEIGHT, use_z)
     draw_thread.start()
 
     crashed = False
@@ -269,6 +297,7 @@ if __name__ == "__main__":
                         final_interpolated_path.append(new_point)
 
                     line_points = final_interpolated_path
+                    line_points = altitude_check(line_points)
                 elif event.key == pygame.K_e:
 
                     # 前进启动追踪
@@ -286,6 +315,7 @@ if __name__ == "__main__":
                 drawing = True
             elif event.type == pygame.MOUSEBUTTONUP:
                 drawing = False
+                line_points = altitude_check(line_points)
             elif event.type == pygame.MOUSEMOTION and drawing:
                 new_pos = ((event.pos[0] - PIC_SIZE/2)*((CAMERA_INIT_HEIGHT + VIEW_HEIGHT_VERIATION)/CAMERA_INIT_HEIGHT) + PIC_SIZE/2 , 
                            (event.pos[1] - PIC_SIZE/2)*((CAMERA_INIT_HEIGHT + VIEW_HEIGHT_VERIATION)/CAMERA_INIT_HEIGHT) + PIC_SIZE/2)
