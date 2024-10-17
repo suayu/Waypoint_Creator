@@ -4,6 +4,8 @@
 
 # Usage
 
+## 轨迹重放
+
 使用`manual_control.py`替代`Carla/PythonAPI/examples/manual_control.py`这一Carla自带的原生同名文件。
 
 将`get_tf.py`放入`Carla/PythonAPI/examples/`目录。
@@ -40,3 +42,17 @@ x, y, z, pitch ,yaw, roll = get_tf.interpolate(transform, time_stamp, 0.1)
 `delta_seconds`：从上一帧开始经过秒数<br>
 `platform_timestamp`：以秒为单位给出测量帧的寄存器<br>
 上一帧的`elapsed_seconds`+这一帧的`delta_seconds`=这一帧的`elapsed_seconds`
+
+## 描点巡线
+
+先启动Carla模拟器，然后执行以下代码启动绘制工具：
+`python cameras.py`
+
+按下鼠标绘制线条。参考点和参考线将使用红色在Carla模拟器中绘制。
+使用鼠标滚轮调整相机高度。
+按`P`键清除线条和参考点。
+按`C`保存参考点列表，包括模拟器的坐标和相对于自我车辆的位置。
+按`H`键将相机高度恢复为默认值。
+按`Y`键计算小车在参考点的偏航
+按`B`使曲线平滑
+按`E`启动巡线算法，小车将沿着参考线移动。默认为前进。
